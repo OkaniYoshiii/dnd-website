@@ -6,5 +6,237 @@
         <title>DND Character creation</title>
         <script src="/assets/js/main.js" type="module"></script>
     </head>
-    <body></body>
+    <body>
+        <div>
+            <h1>Création de personnage Donjons et Dragons</h1>
+        </div>
+
+        <div>
+            <h2>Profil</h2>
+            <label for="character_name">Nom du personnage</label>
+            <input
+                type="text"
+                name="character_name"
+                id="character_name"
+                placeholder="Conan le barbare"
+            />
+        </div>
+
+        <div>
+            <h2>Choix de la classe</h2>
+            <label for="character_class">Classe</label>
+            <select name="character_class" id="character_class">
+                <option value="barbarian">Barbare</option>
+                <option value="druid">Druide</option>
+                <option value="clerk">Clerc</option>
+                <option value="bard">Barde</option>
+                <option value="sorcerer">Magicien</option>
+                <option value="paladin">Paladin</option>
+            </select>
+        </div>
+
+        <div>
+            <h2>Statistiques</h2>
+            <div>
+                <label for="character_strength">Force</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_strength"
+                    id="character_strength"
+                />
+                <output
+                    for="character_strength"
+                    name="character_strength_modifier"
+                >
+                    +<span id="character_strength_modifier">0</span>
+                </output>
+            </div>
+            <div>
+                <label for="character_dexterity">Dextérité</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_dexterity"
+                    id="character_dexterity"
+                />
+                <output
+                    for="character_dexterity"
+                    name="character_dexterity_modifier"
+                >
+                    +<span id="character_dexterity_modifier">0</span>
+                </output>
+            </div>
+            <div>
+                <label for="character_constitution">Constitution</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_constitution"
+                    id="character_constitution"
+                />
+                <output
+                    for="character_constitution"
+                    name="character_constitution_modifier"
+                >
+                    +<span id="character_constitution_modifier">0</span>
+                </output>
+            </div>
+            <div>
+                <label for="character_intelligence">Intelligence</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_intelligence"
+                    id="character_intelligence"
+                />
+                <output
+                    for="character_intelligence"
+                    name="character_intelligence_modifier"
+                >
+                    +<span id="character_intelligence_modifier">0</span>
+                </output>
+            </div>
+            <div>
+                <label for="character_wisdom">Sagesse</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_wisdom"
+                    id="character_wisdom"
+                />
+                <output for="character_wisdom" name="character_wisdom_modifier">
+                    +<span id="character_wisdom_modifier">0</span>
+                </output>
+            </div>
+            <div>
+                <label for="character_charisma">Charisme</label>
+                <input
+                    type="number"
+                    value="10"
+                    min="0"
+                    max="20"
+                    step="1"
+                    name="character_charisma"
+                    id="character_charisma"
+                />
+                <output
+                    for="character_charisma"
+                    name="character_charisma_modifier"
+                >
+                    +<span id="character_charisma_modifier">0</span>
+                </output>
+            </div>
+        </div>
+
+        <div>
+            <h2>Abilités</h2>
+            <div>
+                <h3>Force</h3>
+                <div>
+                    <span>Athlétisme</span>
+                    <output for="character_strength">+0</output>
+                </div>
+            </div>
+
+            <div>
+                <h3>Dextérité</h3>
+                <div>
+                    <span>Acrobaties</span>
+                    <output for="character_dexterity">+0</output>
+                </div>
+                <div>
+                    <span>Discrétion</span>
+                    <output for="character_dexterity">+0</output>
+                </div>
+                <div>
+                    <span>Escamotage</span>
+                    <output for="character_dexterity">+0</output>
+                </div>
+            </div>
+
+            <div>
+                <h3>Intelligence</h3>
+                <div>
+                    <span>Arcanes</span>
+                    <output for="character_intelligence">+0</output>
+                </div>
+                <div>
+                    <span>Investigation</span>
+                    <output for="character_intelligence">+0</output>
+                </div>
+                <div>
+                    <span>Histoire</span>
+                    <output for="character_intelligence">+0</output>
+                </div>
+                <div>
+                    <span>Nature</span>
+                    <output for="character_intelligence">+0</output>
+                </div>
+                <div>
+                    <span>Religion</span>
+                    <output for="character_intelligence">+0</output>
+                </div>
+            </div>
+
+            <div>
+                <h3>Sagesse</h3>
+                <div>
+                    <span>Dressage</span>
+                    <output for="character_wisdom">+0</output>
+                </div>
+                <div>
+                    <span>Intuition</span>
+                    <output for="character_wisdom">+0</output>
+                </div>
+                <div>
+                    <span>Médecine</span>
+                    <output for="character_wisdom">+0</output>
+                </div>
+                <div>
+                    <span>Perception</span>
+                    <output for="character_wisdom">+0</output>
+                </div>
+                <div>
+                    <span>Survie</span>
+                    <output for="character_wisdom">+0</output>
+                </div>
+            </div>
+
+            <div>
+                <h3>Charisme</h3>
+                <div>
+                    <span>Intimidation</span>
+                    <output for="character_charisma">+0</output>
+                </div>
+                <div>
+                    <span>Persuasion</span>
+                    <output for="character_charisma">+0</output>
+                </div>
+                <div>
+                    <span>Représentation</span>
+                    <output for="character_charisma">+0</output>
+                </div>
+                <div>
+                    <span>Tromperie</span>
+                    <output for="character_charisma">+0</output>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
