@@ -13,13 +13,34 @@
 
         <div>
             <h2>Profil</h2>
-            <label for="character_name">Nom du personnage</label>
-            <input
-                type="text"
-                name="character_name"
-                id="character_name"
-                placeholder="Conan le barbare"
-            />
+            <div>
+                <label for="character_name">Nom du personnage</label>
+                <input
+                    type="text"
+                    name="character_name"
+                    id="character_name"
+                    placeholder="Conan le barbare"
+                />
+            </div>
+
+            <div>
+                <span>Niveau</span>
+                <output for="character_experience" id="character_level">
+                    1
+                </output>
+            </div>
+
+            <div>
+                <label for="character_experience">Expérience</label>
+                <input
+                    type="number"
+                    name="character_experience"
+                    id="character_experience"
+                    min="0"
+                    step="1"
+                    value="0"
+                />
+            </div>
         </div>
 
         <div>
