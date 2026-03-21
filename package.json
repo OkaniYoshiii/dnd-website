@@ -1,8 +1,19 @@
 {
-  "devDependencies": {
-    "typescript": "^5.9.3"
-  },
-  "dependencies": {
-    "neverthrow": "^8.2.0"
-  }
+    "name": "dnd-website",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview",
+        "type-check": "tsc --noEmit --watch"
+    },
+    "devDependencies": {
+        "typescript": "~5.9.3",
+        "vite": "^8.0.1"
+    },
+    "dependencies": {
+        "neverthrow": "^8.2.0"
+    }
 }
