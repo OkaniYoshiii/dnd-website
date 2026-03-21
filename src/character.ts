@@ -71,6 +71,24 @@ function validateExperience(value: number) {
     return ok(value);
 }
 
+function validateHealth(value: number) {
+    const min = 0;
+    if (value < 0) {
+        return err(new Error(`Health value must be greater than ${min}`));
+    }
+
+    return ok(value);
+}
+
+function validateMaxHealth(value: number) {
+    const min = 0;
+    if (value < 0) {
+        return err(new Error(`Max health value must be greater than ${min}`));
+    }
+
+    return ok(value);
+}
+
 function validateLevel(value: number) {
     const min = 0;
     if (value < 0) {
@@ -374,6 +392,86 @@ export function setLevel(level: number) {
 
     const level_element = level_element_result.value;
     level_element.textContent = level.toString();
+
+    return ok();
+}
+
+export function getCurrentHealthElement() {
+    const element_result = getElementById("character_current_health");
+    if (element_result.isErr()) {
+        return element_result;
+    }
+
+    return ok(element_result.value);
+}
+
+export function getMaxHealthElement() {
+    const element_result = getElementById("character_max_health");
+    if (element_result.isErr()) {
+        return element_result;
+    }
+
+    return ok(element_result.value);
+}
+
+export function getMaxHealth() {
+    const result = getMaxHealthElement();
+    if (result.isErr()) {
+        return result;
+    }
+
+    const max_health = parseInt(result.value.textContent, 10);
+    if (isNaN(max_health)) {
+        return err(new Error("Max health is not a valid number"));
+    }
+
+    return ok(max_health);
+}
+
+export function setCurrentHealth(health: number) {
+    const validation_result = validateHealth(health);
+    if (validation_result.isErr()) {
+        return validation_result;
+    }
+    const current_health_element_result = getCurrentHealthElement();
+    if (current_health_element_result.isErr()) {
+        return current_health_element_result;
+    }
+
+    const max_health_result = getMaxHealth();
+    if (max_health_result.isErr()) {
+        return max_health_result;
+    }
+
+    const max_health = max_health_result.value;
+    const current_health_element = current_health_element_result.value;
+
+    if (health > max_health) {
+        return err(
+            new Error(
+                `Health value (${health}) is greater than current max health (${max_health})`,
+            ),
+        );
+    }
+
+    current_health_element.textContent = health.toString();
+
+    return ok();
+}
+
+export function setMaxHealth(max_health: number) {
+    const validation_result = validateMaxHealth(max_health);
+    if (validation_result.isErr()) {
+        return validation_result;
+    }
+
+    const max_health_element_result = getMaxHealthElement();
+    if (max_health_element_result.isErr()) {
+        return max_health_element_result;
+    }
+
+    const max_health_element = max_health_element_result.value;
+    max_health_element.textContent = max_health.toString();
 
     return ok();
 }
