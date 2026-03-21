@@ -96,6 +96,14 @@ function validateMaxHealth(value: number): Result<number, Error> {
     return ok(value);
 }
 
+function validatePositiveOrZero(value: number): Result<number, Error> {
+    if (value < 0) {
+        return err(new Error(`value must be positive`));
+    }
+
+    return ok(value);
+}
+
 function validateLevel(value: number): Result<number, Error> {
     const min = 0;
     if (value < 0) {
@@ -397,5 +405,39 @@ export function setMaxHealth(max_health: number): Result<void, Error> {
         .andThen(getMaxHealthElement)
         .map((element) => {
             element.textContent = max_health.toString();
+        });
+}
+
+export function getAbilityPointsElement(): Result<HTMLElement, Error> {
+    return getElementById("character_ability_points");
+}
+
+export function getAbilityPoints(): Result<number, Error> {
+    return getAbilityPointsElement().andThen((element) => {
+        const value = parseInt(element.textContent);
+        if (isNaN(value)) {
+            return err(new Error("Ability points value is NaN"));
+        }
+        return ok(value);
+    });
+}
+
+export function incrementAbilityPoints(): Result<void, Error> {
+    return getAbilityPoints().andThen((ability_points) => {
+        return setAbilityPoints(ability_points + 1);
+    });
+}
+
+export function decrementAbilityPoints(): Result<void, Error> {
+    return getAbilityPoints().andThen((ability_points) => {
+        return setAbilityPoints(ability_points - 1);
+    });
+}
+
+export function setAbilityPoints(ability_points: number): Result<void, Error> {
+    return validatePositiveOrZero(ability_points)
+        .andThen(getAbilityPointsElement)
+        .map((element) => {
+            element.textContent = ability_points.toString();
         });
 }
