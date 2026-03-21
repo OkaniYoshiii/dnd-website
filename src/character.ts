@@ -1,4 +1,4 @@
-import { ok, err } from "neverthrow";
+import { ok, err, Result } from "neverthrow";
 import { getElementById } from "./utils";
 
 export enum CharacterClass {
@@ -33,7 +33,14 @@ export type AbilitiesStats = {
     [Ability.Charsima]: number;
 };
 
-function validateAbilityStat(value: number) {
+export function isCharacterClass(value: unknown): value is CharacterClass {
+    return (
+        typeof value === "string" &&
+        Object.values<string>(CharacterClass).includes(value)
+    );
+}
+
+function validateAbilityStat(value: number): Result<number, Error> {
     const min = 1;
     const max = 20;
     if (value >= min && value <= max) {
@@ -45,7 +52,7 @@ function validateAbilityStat(value: number) {
     );
 }
 
-function validateAbilityModifier(value: number) {
+function validateAbilityModifier(value: number): Result<number, Error> {
     const min = -4;
     const max = 5;
     if (value >= min && value <= max) {
@@ -57,7 +64,7 @@ function validateAbilityModifier(value: number) {
     );
 }
 
-function validateExperience(value: number) {
+function validateExperience(value: number): Result<number, Error> {
     const min = 0;
     const max = 355000;
     if (value < 0 || value > max) {
@@ -71,7 +78,7 @@ function validateExperience(value: number) {
     return ok(value);
 }
 
-function validateHealth(value: number) {
+function validateHealth(value: number): Result<number, Error> {
     const min = 0;
     if (value < 0) {
         return err(new Error(`Health value must be greater than ${min}`));
@@ -80,7 +87,7 @@ function validateHealth(value: number) {
     return ok(value);
 }
 
-function validateMaxHealth(value: number) {
+function validateMaxHealth(value: number): Result<number, Error> {
     const min = 0;
     if (value < 0) {
         return err(new Error(`Max health value must be greater than ${min}`));
@@ -89,7 +96,7 @@ function validateMaxHealth(value: number) {
     return ok(value);
 }
 
-function validateLevel(value: number) {
+function validateLevel(value: number): Result<number, Error> {
     const min = 0;
     if (value < 0) {
         return err(new Error(`Level value must be greater than ${min}`));
@@ -119,75 +126,58 @@ export function defaultStats(): Stats {
     };
 }
 
-export function getClassSelect() {
-    const result = getElementById("character_class");
-    if (result.isErr()) {
-        return result;
-    }
+export function getClassSelect(): Result<HTMLSelectElement, Error> {
+    return getElementById("character_class").andThen((element) => {
+        if (!(element instanceof HTMLSelectElement)) {
+            return err(
+                new Error(
+                    `Element with id ${element.id} is not an instance of HTMLSelectElement`,
+                ),
+            );
+        }
 
-    const class_select = result.value;
-    if (!(class_select instanceof HTMLSelectElement)) {
-        return err(
-            new Error(
-                `Element with id ${result.value.id} is not an instance of HTMLSelectElement`,
-            ),
-        );
-    }
-
-    return ok(class_select);
+        return ok(element);
+    });
 }
 
-export function getSelectedClass() {
-    const result = getClassSelect();
-    if (result.isErr()) {
-        return result;
-    }
+export function getSelectedClass(): Result<CharacterClass, Error> {
+    return getClassSelect().andThen((element) => {
+        const value = element.value;
+        if (!isCharacterClass(value)) {
+            return err(
+                new Error(
+                    `class_select value is not a valid character class value. Expected values ${Object.values<string>(CharacterClass)}`,
+                ),
+            );
+        }
 
-    const class_select = result.value;
-    const selected_class = class_select.value;
-
-    if (!isCharacterClass(selected_class)) {
-        return err(
-            new Error(
-                `class_select value is not a valid character class value. Expected values ${Object.values<string>(CharacterClass)}`,
-            ),
-        );
-    }
-
-    return ok(selected_class);
+        return ok(value);
+    });
 }
 
-export function isCharacterClass(value: unknown): value is CharacterClass {
-    return (
-        typeof value === "string" &&
-        Object.values<string>(CharacterClass).includes(value)
-    );
+export function setClass(character_class: CharacterClass): Result<void, Error> {
+    let stats: Stats = getClassStats(character_class);
+
+    return setAbility(Ability.Strength, stats.abilities[Ability.Strength]);
 }
 
-export function setClass(character_class: CharacterClass) {
-    let stats: Stats = characterStats(character_class);
+export function setAbility(
+    ability: Ability,
+    ability_stat: number,
+): Result<void, Error> {
+    return validateAbilityStat(ability)
+        .andThen(getAbilityInput)
+        .andThen((input) => {
+            input.value = ability_stat.toString();
 
-    setAbility(Ability.Strength, stats.abilities[Ability.Strength]);
+            let modifier = Math.floor(ability_stat - 10 / 2);
+            return setAbilityModifier(ability, modifier);
+        });
 }
 
-export function setAbility(ability: Ability, ability_stat: number) {
-    const ability_stat_result = validateAbilityStat(ability_stat);
-    if (ability_stat_result.isErr()) {
-        return ability_stat_result;
-    }
-
-    const result = getAbilityInput(ability);
-    if (result.isErr()) {
-        return result;
-    }
-    const input = result.value;
-    input.value = ability_stat.toString();
-
-    let modifier = Math.floor(ability_stat - 10 / 2);
-    return setAbilityModifier(ability, modifier);
-}
-
-export function getAbilityInput(ability: Ability) {
+export function getAbilityInput(
+    ability: Ability,
+): Result<HTMLInputElement, Error> {
     let id: string = "";
     switch (ability) {
         case Ability.Strength:
@@ -213,23 +203,20 @@ export function getAbilityInput(ability: Ability) {
     }
 
     const result = getElementById(id);
-    if (result.isErr()) {
-        return result;
-    }
+    return result.andThen((element) => {
+        if (!(element instanceof HTMLInputElement)) {
+            return err(
+                new Error(
+                    `Expected element with id ${id} to be an instance of ${HTMLInputElement.name}`,
+                ),
+            );
+        }
 
-    const input = result.value;
-    if (!(input instanceof HTMLInputElement)) {
-        return err(
-            new Error(
-                `Expected element with id ${id} to be an instance of ${HTMLInputElement.name}`,
-            ),
-        );
-    }
-
-    return ok(input);
+        return ok(element);
+    });
 }
 
-export function characterStats(character_class: CharacterClass): Stats {
+export function getClassStats(character_class: CharacterClass): Stats {
     switch (character_class) {
         case CharacterClass.Barbarian:
             return defaultStats();
@@ -249,10 +236,13 @@ export function characterStats(character_class: CharacterClass): Stats {
     }
 }
 
-export function setAbilityModifier(ability: Ability, modifier: number) {
+export function setAbilityModifier(
+    ability: Ability,
+    modifier: number,
+): Result<void, Error> {
     const modifier_result = validateAbilityModifier(modifier);
     if (modifier_result.isErr()) {
-        return modifier_result;
+        return err(modifier_result.error);
     }
 
     let id: string = "";
@@ -279,199 +269,133 @@ export function setAbilityModifier(ability: Ability, modifier: number) {
             throw ability satisfies never;
     }
 
-    const result = getElementById(id);
-    if (result.isErr()) {
-        return result;
-    }
-
-    const element = result.value;
-    element.textContent = modifier.toString();
-
-    return ok();
+    return getElementById(id).map((element) => {
+        element.textContent = modifier.toString();
+    });
 }
 
-export function getExperienceInput() {
+export function getExperienceInput(): Result<HTMLInputElement, Error> {
     const id = "character_experience";
-    const element_result = getElementById(id);
-    if (element_result.isErr()) {
-        return element_result;
-    }
+    return getElementById(id).andThen((element) => {
+        if (!(element instanceof HTMLInputElement)) {
+            return err(
+                new Error(
+                    `Expected element with id ${id} to be an instance of ${HTMLInputElement.name}`,
+                ),
+            );
+        }
 
-    const experience_input = element_result.value;
-    if (!(experience_input instanceof HTMLInputElement)) {
-        return err(
-            new Error(
-                `Expected element with id ${id} to be an instance of ${HTMLInputElement.name}`,
-            ),
-        );
-    }
-
-    return ok(experience_input);
+        return ok(element);
+    });
 }
 
-export function setExperience(experience: number) {
-    const validation_result = validateExperience(experience);
-    if (validation_result.isErr()) {
-        return validation_result;
-    }
+export function setExperience(experience: number): Result<void, Error> {
+    return validateExperience(experience)
+        .andThen(getExperienceInput)
+        .andThen((input) => {
+            input.value = experience.toString();
 
-    const experience_input_result = getExperienceInput();
-    if (experience_input_result.isErr()) {
-        return experience_input_result;
-    }
+            let level = 1;
+            if (experience < 300) {
+                level = 1;
+            } else if (experience >= 300) {
+                level = 2;
+            } else if (experience >= 900) {
+                level = 3;
+            } else if (experience >= 2700) {
+                level = 4;
+            } else if (experience >= 6500) {
+                level = 5;
+            } else if (experience >= 14000) {
+                level = 6;
+            } else if (experience >= 23000) {
+                level = 7;
+            } else if (experience >= 34000) {
+                level = 8;
+            } else if (experience >= 48000) {
+                level = 9;
+            } else if (experience >= 64000) {
+                level = 10;
+            } else if (experience >= 85000) {
+                level = 11;
+            } else if (experience >= 100000) {
+                level = 12;
+            } else if (experience >= 120000) {
+                level = 13;
+            } else if (experience >= 140000) {
+                level = 14;
+            } else if (experience >= 165000) {
+                level = 15;
+            } else if (experience >= 195000) {
+                level = 16;
+            } else if (experience >= 225000) {
+                level = 17;
+            } else if (experience >= 265000) {
+                level = 18;
+            } else if (experience >= 305000) {
+                level = 19;
+            } else if (experience >= 355000) {
+                level = 20;
+            }
 
-    const experience_input = experience_input_result.value;
-    experience_input.value = experience.toString();
-
-    let level = 1;
-    if (experience < 300) {
-        level = 1;
-    } else if (experience >= 300) {
-        level = 2;
-    } else if (experience >= 900) {
-        level = 3;
-    } else if (experience >= 2700) {
-        level = 4;
-    } else if (experience >= 6500) {
-        level = 5;
-    } else if (experience >= 14000) {
-        level = 6;
-    } else if (experience >= 23000) {
-        level = 7;
-    } else if (experience >= 34000) {
-        level = 8;
-    } else if (experience >= 48000) {
-        level = 9;
-    } else if (experience >= 64000) {
-        level = 10;
-    } else if (experience >= 85000) {
-        level = 11;
-    } else if (experience >= 100000) {
-        level = 12;
-    } else if (experience >= 120000) {
-        level = 13;
-    } else if (experience >= 140000) {
-        level = 14;
-    } else if (experience >= 165000) {
-        level = 15;
-    } else if (experience >= 195000) {
-        level = 16;
-    } else if (experience >= 225000) {
-        level = 17;
-    } else if (experience >= 265000) {
-        level = 18;
-    } else if (experience >= 305000) {
-        level = 19;
-    } else if (experience >= 355000) {
-        level = 20;
-    }
-
-    return setLevel(level);
+            return setLevel(level);
+        });
 }
 
-export function getLevelElement() {
-    const id = "character_level";
-    const element_result = getElementById(id);
-    if (element_result.isErr()) {
-        return element_result;
-    }
-
-    return ok(element_result.value);
+export function getLevelElement(): Result<HTMLElement, Error> {
+    return getElementById("character_level");
 }
 
-export function setLevel(level: number) {
-    const validation_result = validateLevel(level);
-    if (validation_result.isErr()) {
-        return validation_result;
-    }
-
-    const level_element_result = getLevelElement();
-    if (level_element_result.isErr()) {
-        return level_element_result;
-    }
-
-    const level_element = level_element_result.value;
-    level_element.textContent = level.toString();
-
-    return ok();
+export function setLevel(level: number): Result<void, Error> {
+    return Result.combine([validateLevel(level), getLevelElement()]).map(
+        ([_, element]) => {
+            element.textContent = level.toString();
+        },
+    );
 }
 
-export function getCurrentHealthElement() {
-    const element_result = getElementById("character_current_health");
-    if (element_result.isErr()) {
-        return element_result;
-    }
-
-    return ok(element_result.value);
+export function getCurrentHealthElement(): Result<HTMLElement, Error> {
+    return getElementById("character_current_health");
 }
 
-export function getMaxHealthElement() {
-    const element_result = getElementById("character_max_health");
-    if (element_result.isErr()) {
-        return element_result;
-    }
-
-    return ok(element_result.value);
+export function getMaxHealthElement(): Result<HTMLElement, Error> {
+    return getElementById("character_max_health");
 }
 
-export function getMaxHealth() {
-    const result = getMaxHealthElement();
-    if (result.isErr()) {
-        return result;
-    }
+export function getMaxHealth(): Result<number, Error> {
+    return getMaxHealthElement().andThen((element) => {
+        const max_health = parseInt(element.textContent, 10);
+        if (isNaN(max_health)) {
+            return err(new Error("Max health is not a valid number"));
+        }
 
-    const max_health = parseInt(result.value.textContent, 10);
-    if (isNaN(max_health)) {
-        return err(new Error("Max health is not a valid number"));
-    }
-
-    return ok(max_health);
+        return ok(max_health);
+    });
 }
 
-export function setCurrentHealth(health: number) {
-    const validation_result = validateHealth(health);
-    if (validation_result.isErr()) {
-        return validation_result;
-    }
-    const current_health_element_result = getCurrentHealthElement();
-    if (current_health_element_result.isErr()) {
-        return current_health_element_result;
-    }
+export function setCurrentHealth(health: number): Result<void, Error> {
+    return Result.combine([
+        validateHealth(health),
+        getCurrentHealthElement(),
+        getMaxHealth(),
+    ]).andThen(([_, element, max_health]) => {
+        if (health > max_health) {
+            return err(
+                new Error(
+                    `Health value (${health}) is greater than current max health (${max_health})`,
+                ),
+            );
+        }
 
-    const max_health_result = getMaxHealth();
-    if (max_health_result.isErr()) {
-        return max_health_result;
-    }
-
-    const max_health = max_health_result.value;
-    const current_health_element = current_health_element_result.value;
-
-    if (health > max_health) {
-        return err(
-            new Error(
-                `Health value (${health}) is greater than current max health (${max_health})`,
-            ),
-        );
-    }
-
-    current_health_element.textContent = health.toString();
-
-    return ok();
+        element.textContent = health.toString();
+        return ok();
+    });
 }
 
-export function setMaxHealth(max_health: number) {
-    const validation_result = validateMaxHealth(max_health);
-    if (validation_result.isErr()) {
-        return validation_result;
-    }
-
-    const max_health_element_result = getMaxHealthElement();
-    if (max_health_element_result.isErr()) {
-        return max_health_element_result;
-    }
-
-    const max_health_element = max_health_element_result.value;
-    max_health_element.textContent = max_health.toString();
-
-    return ok();
+export function setMaxHealth(max_health: number): Result<void, Error> {
+    return validateMaxHealth(max_health)
+        .andThen(getMaxHealthElement)
+        .map((element) => {
+            element.textContent = max_health.toString();
+        });
 }
