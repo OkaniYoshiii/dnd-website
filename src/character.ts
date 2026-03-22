@@ -220,6 +220,11 @@ export function setAbility(
 
             let modifier = Math.floor((ability_stat - 10) / 2);
             return setAbilityModifier(ability, modifier);
+        })
+        .andThen(() => {
+            return getAbilityPoints().andThen((ability_points: number) => {
+                return setAbilityPoints(ability_points - (ability_stat - 10));
+            });
         });
 }
 
