@@ -21,7 +21,7 @@ export const enum Ability {
     Constitution,
     Intelligence,
     Wisdom,
-    Charsima,
+    Charisma,
 }
 
 export const enum StrengthSkill {
@@ -70,7 +70,7 @@ export type AbilitiesStats = {
     [Ability.Constitution]: number;
     [Ability.Intelligence]: number;
     [Ability.Wisdom]: number;
-    [Ability.Charsima]: number;
+    [Ability.Charisma]: number;
 };
 
 export function isCharacterClass(value: unknown): value is CharacterClass {
@@ -160,7 +160,7 @@ export function defaultAbilities(): AbilitiesStats {
         [Ability.Constitution]: 10,
         [Ability.Intelligence]: 10,
         [Ability.Wisdom]: 10,
-        [Ability.Charsima]: 10,
+        [Ability.Charisma]: 10,
     };
 }
 
@@ -206,6 +206,7 @@ export function getSelectedClass(): Result<CharacterClass, Error> {
 export function setClass(character_class: CharacterClass): Result<void, Error> {
     let stats: Stats = getClassStats(character_class);
 
+    console.log(stats.abilities[Ability.Strength]);
     return setAbility(Ability.Strength, stats.abilities[Ability.Strength]);
 }
 
@@ -213,12 +214,12 @@ export function setAbility(
     ability: Ability,
     ability_stat: number,
 ): Result<void, Error> {
-    return validateAbilityStat(ability)
-        .andThen(getAbilityInput)
+    return validateAbilityStat(ability_stat)
+        .andThen(() => getAbilityInput(ability))
         .andThen((input) => {
             input.value = ability_stat.toString();
 
-            let modifier = Math.floor(ability_stat - 10 / 2);
+            let modifier = Math.floor((ability_stat - 10) / 2);
             return setAbilityModifier(ability, modifier);
         });
 }
@@ -243,7 +244,7 @@ export function getAbilityInput(
         case Ability.Wisdom:
             id = "character_wisdom";
             break;
-        case Ability.Charsima:
+        case Ability.Charisma:
             id = "character_charisma";
             break;
         default:
@@ -310,7 +311,7 @@ export function setAbilityModifier(
         case Ability.Wisdom:
             id = "character_wisdom_modifier";
             break;
-        case Ability.Charsima:
+        case Ability.Charisma:
             id = "character_charisma_modifier";
             break;
         default:
