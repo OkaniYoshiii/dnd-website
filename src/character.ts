@@ -80,6 +80,33 @@ export function isCharacterClass(value: unknown): value is CharacterClass {
     );
 }
 
+const strength_skills = [StrengthSkill.Athletism];
+const dexterity_skills = [
+    DexteritySkill.Acrobatics,
+    DexteritySkill.SleightOfHand,
+    DexteritySkill.Stealth,
+];
+const intelligence_skills = [
+    IntelligenceSkill.Arcana,
+    IntelligenceSkill.Nature,
+    IntelligenceSkill.Religion,
+    IntelligenceSkill.History,
+    IntelligenceSkill.Investigation,
+];
+const wisdom_skills = [
+    WisdomSkill.AnimalHandling,
+    WisdomSkill.Insight,
+    WisdomSkill.Medicine,
+    WisdomSkill.Perception,
+    WisdomSkill.Survival,
+];
+const charisma_skills = [
+    CharsimaSkill.Deception,
+    CharsimaSkill.Intimidation,
+    CharsimaSkill.Performance,
+    CharsimaSkill.Persuasion,
+];
+
 function validateAbilityStat(value: number): Result<number, Error> {
     const min = 1;
     const max = 20;
@@ -299,27 +326,41 @@ export function setAbilityModifier(
     }
 
     let id: string = "";
+    let skills: Skill[] = [];
     switch (ability) {
         case Ability.Strength:
             id = "character_strength_modifier";
+            skills = strength_skills;
             break;
         case Ability.Dexterity:
             id = "character_dexterity_modifier";
+            skills = dexterity_skills;
             break;
         case Ability.Constitution:
             id = "character_constitution_modifier";
+            skills = [];
             break;
         case Ability.Intelligence:
             id = "character_intelligence_modifier";
+            skills = intelligence_skills;
             break;
         case Ability.Wisdom:
             id = "character_wisdom_modifier";
+            skills = wisdom_skills;
             break;
         case Ability.Charisma:
             id = "character_charisma_modifier";
+            skills = charisma_skills;
             break;
         default:
             throw ability satisfies never;
+    }
+
+    for (const skill of skills) {
+        const result = setSkillPoints(skill, modifier);
+        if (result.isErr()) {
+            return result;
+        }
     }
 
     return getElementById(id).map((element) => {
