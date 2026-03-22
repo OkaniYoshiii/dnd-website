@@ -1,36 +1,24 @@
-import { err } from "neverthrow";
-import {
-    getExperienceInput,
-    setAbility,
-    setDefaults,
-    setExperience,
-} from "./character";
-
-function handleError(error: Error) {
-    console.error(error);
-}
+// import { err } from "neverthrow";
+import { experience_element_id, tryGetInputById } from "./dom";
 
 (function (): void {
-    const result = setDefaults();
+    const result = tryGetInputById(experience_element_id);
     if (result.isErr()) {
-        return handleError(result.error);
+        return console.log(result.error);
     }
 
-    getExperienceInput().match((input) => {
-        input.addEventListener("change", updateExperience);
-    }, handleError);
+    result.value.addEventListener("change", updateExperience);
 })();
 
 function updateExperience() {
-    const result = getExperienceInput().andThen((input) => {
-        const experience = parseInt(input.value);
-        if (isNaN(experience)) {
-            return err(new Error("Experience is NaN"));
-        }
-        return setExperience(experience);
-    });
-
-    if (result.isErr()) {
-        return handleError(result.error);
-    }
+    // const result = getExperienceInput().andThen((input) => {
+    //     const experience = parseInt(input.value);
+    //     if (isNaN(experience)) {
+    //         return err(new Error("Experience is NaN"));
+    //     }
+    //     return setExperience(experience);
+    // });
+    // if (result.isErr()) {
+    //     return handleError(result.error);
+    // }
 }
