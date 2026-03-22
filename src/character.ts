@@ -323,7 +323,7 @@ export function setAbilityModifier(
     }
 
     return getElementById(id).map((element) => {
-        element.textContent = modifier.toString();
+        element.textContent = `${modifier >= 0 ? "+" : ""}${modifier.toString()}`;
     });
 }
 
@@ -569,7 +569,7 @@ export function setSkillPoints(skill: Skill, skill_points: number) {
     }
 
     return getElementById(id).map((element) => {
-        element.textContent = skill_points.toString();
+        element.textContent = `${skill_points >= 0 ? "+" : ""}${skill_points.toString()}`;
     });
 }
 
