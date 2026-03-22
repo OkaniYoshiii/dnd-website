@@ -206,7 +206,6 @@ export function getSelectedClass(): Result<CharacterClass, Error> {
 export function setClass(character_class: CharacterClass): Result<void, Error> {
     let stats: Stats = getClassStats(character_class);
 
-    console.log(stats.abilities[Ability.Strength]);
     return setAbility(Ability.Strength, stats.abilities[Ability.Strength]);
 }
 
@@ -567,4 +566,26 @@ export function setSkillPoints(skill: Skill, skill_points: number) {
     return getElementById(id).map((element) => {
         element.textContent = skill_points.toString();
     });
+}
+
+export function setDefaults(): Result<void, Error> {
+    const result = Result.combine([
+        setExperience(0),
+        setLevel(1),
+        setClass(CharacterClass.Barbarian),
+        setMaxHealth(20),
+        setCurrentHealth(20),
+        setAbility(Ability.Strength, 10),
+        setAbility(Ability.Dexterity, 10),
+        setAbility(Ability.Constitution, 10),
+        setAbility(Ability.Intelligence, 10),
+        setAbility(Ability.Wisdom, 10),
+        setAbility(Ability.Charisma, 10),
+    ]);
+
+    if (result.isErr()) {
+        return err(result.error);
+    }
+
+    return ok();
 }

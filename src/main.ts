@@ -1,11 +1,21 @@
 import { err } from "neverthrow";
-import { getExperienceInput, setExperience } from "./character";
+import {
+    getExperienceInput,
+    setAbility,
+    setDefaults,
+    setExperience,
+} from "./character";
 
 function handleError(error: Error) {
     console.error(error);
 }
 
 (function (): void {
+    const result = setDefaults();
+    if (result.isErr()) {
+        return handleError(result.error);
+    }
+
     getExperienceInput().match((input) => {
         input.addEventListener("change", updateExperience);
     }, handleError);
