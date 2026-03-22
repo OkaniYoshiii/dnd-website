@@ -24,6 +24,46 @@ export const enum Ability {
     Charsima,
 }
 
+export const enum StrengthSkill {
+    Athletism = 0,
+}
+
+export const enum DexteritySkill {
+    Acrobatics = 1,
+    SleightOfHand = 2,
+    Stealth = 3,
+}
+
+export const enum IntelligenceSkill {
+    Arcana = 4,
+    History = 5,
+    Investigation = 6,
+    Nature = 7,
+    Religion = 8,
+}
+
+export const enum WisdomSkill {
+    AnimalHandling = 9,
+    Insight = 10,
+    Medicine = 11,
+    Perception = 12,
+    Survival = 13,
+}
+
+export const enum CharsimaSkill {
+    Deception = 14,
+    Intimidation = 15,
+    Performance = 16,
+    Persuasion = 17,
+}
+
+export type Skill =
+    | StrengthSkill
+    | DexteritySkill
+    | IntelligenceSkill
+    | WisdomSkill
+    | CharsimaSkill;
+
 export type AbilitiesStats = {
     [Ability.Strength]: number;
     [Ability.Dexterity]: number;
@@ -440,4 +480,70 @@ export function setAbilityPoints(ability_points: number): Result<void, Error> {
         .map((element) => {
             element.textContent = ability_points.toString();
         });
+}
+
+export function setSkillPoints(skill: Skill, skill_points: number) {
+    let id: string = "";
+    switch (skill) {
+        case StrengthSkill.Athletism:
+            id = "character_skill_athletics";
+            break;
+        case DexteritySkill.Acrobatics:
+            id = "character_skill_acrobatics";
+            break;
+        case DexteritySkill.SleightOfHand:
+            id = "character_skill_sleight_of_hand";
+            break;
+        case DexteritySkill.Stealth:
+            id = "character_skill_stealth";
+            break;
+        case IntelligenceSkill.Arcana:
+            id = "character_skill_arcana";
+            break;
+        case IntelligenceSkill.Nature:
+            id = "character_skill_nature";
+            break;
+        case IntelligenceSkill.Religion:
+            id = "character_skill_religion";
+            break;
+        case IntelligenceSkill.History:
+            id = "character_skill_history";
+            break;
+        case IntelligenceSkill.Investigation:
+            id = "character_skill_investigation";
+            break;
+        case WisdomSkill.AnimalHandling:
+            id = "character_skill_animal_handling";
+            break;
+        case WisdomSkill.Insight:
+            id = "character_skill_insight";
+            break;
+        case WisdomSkill.Medicine:
+            id = "character_skill_medicine";
+            break;
+        case WisdomSkill.Perception:
+            id = "character_skill_perception";
+            break;
+        case WisdomSkill.Survival:
+            id = "character_skill_survival";
+            break;
+        case CharsimaSkill.Deception:
+            id = "character_skill_deception";
+            break;
+        case CharsimaSkill.Intimidation:
+            id = "character_skill_intimidation";
+            break;
+        case CharsimaSkill.Performance:
+            id = "character_skill_performance";
+            break;
+        case CharsimaSkill.Persuasion:
+            id = "character_skill_persuasion";
+            break;
+        default:
+            throw skill satisfies never;
+    }
+
+    return getElementById(id).map((element) => {
+        element.textContent = skill_points.toString();
+    });
 }
