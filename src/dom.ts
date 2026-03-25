@@ -6,6 +6,7 @@ export const max_health_element_id = "character_max_health";
 export const class_element_id = "character_class";
 export const experience_element_id = "character_experience";
 export const level_element_id = "character_level"
+export const abilities_element_id = "character_abilities"
 
 export function tryGetElementById(id: string): Result<HTMLElement, Error> {
     const element = document.getElementById(id);
