@@ -1,36 +1,30 @@
-// import type { Result } from "neverthrow";
+import { type Result } from "neverthrow";
+import { computeLevelFromExperience } from "./character";
+import { experience_element_id } from "./dom";
+import { tryParseInt } from "./utils";
 
-// export function render(result: Result<Character, Error>) {
-//     if (result.isErr()) {
-//         return;
-//     }
+export function onExperienceUpdate(ev: Event, level_element: HTMLElement): void {
+    const target = ev.target
+    if (target instanceof HTMLInputElement && target.id === experience_element_id) {
+        const result = tryParseInt(target.value)
+        if (result.isErr()) {
+            // TODO: show error message
+            return console.error(result.error)
+        }
 
-//     const character = result.value;
-//     const health = character.health;
-//     const max_health = character.max_health;
+        trySetExperience(result.value, level_element)
+    }
+}
 
-//     if (health !== undefined && max_health !== undefined) {
-//     }
-// }
+export function trySetExperience(experience: number, level_element: HTMLElement): Result<void, Error> {
+    const level = computeLevelFromExperience(experience)
+    return tryParseInt(level_element.textContent).map((current_level): void => {
+        if (level === current_level) return
 
-// export function setDefaults(): Result<void, Error> {
-//     const result = Result.combine([
-//         setExperience(0),
-//         setLevel(1),
-//         setClass(CharacterClass.Barbarian),
-//         setMaxHealth(20),
-//         setCurrentHealth(20),
-//         setAbility(Ability.Strength, 10),
-//         setAbility(Ability.Dexterity, 10),
-//         setAbility(Ability.Constitution, 10),
-//         setAbility(Ability.Intelligence, 10),
-//         setAbility(Ability.Wisdom, 10),
-//         setAbility(Ability.Charisma, 10),
-//     ]);
+        setLevel(level, level_element)
+    });
+}
 
-//     if (result.isErr()) {
-//         return err(result.error);
-//     }
-
-//     return ok();
-// }
+export function setLevel(level: number, level_element: HTMLElement): void {
+    level_element.textContent = level.toString()
+}

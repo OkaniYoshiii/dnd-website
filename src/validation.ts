@@ -1,4 +1,5 @@
 import { err, ok, Result } from "neverthrow";
+import type { Abilities, Character } from "./character";
 
 export function validateAbilityStat(value: number): Result<number, Error> {
     const min = 1;

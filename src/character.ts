@@ -1,3 +1,149 @@
+import { err, ok, Result } from "neverthrow";
+
+export type Abilities = {
+    strength: number,
+    dexterity: number,
+    constitution: number,
+    intelligence: number,
+    wisdom: number,
+    charisma: number,
+}
+
+export type CharacterStats = {
+    level: number,
+    experience: number,
+    class: CharacterClass,
+    abilities: Abilities
+}
+
+export class Character implements CharacterStats {
+    public level: number;
+    public experience: number;
+    public class: CharacterClass;
+    public abilities: Abilities
+
+    constructor(stats: CharacterStats) {
+        this.level = stats.level
+        this.experience = stats.experience
+        this.class = stats.class
+        this.abilities = {
+            strength: stats.abilities.strength,
+            dexterity: stats.abilities.dexterity,
+            constitution: stats.abilities.constitution,
+            intelligence: stats.abilities.intelligence,
+            wisdom: stats.abilities.wisdom,
+            charisma: stats.abilities.charisma,
+        }
+    }
+}
+
+export function tryNewDefaultCharacter(): Result<Character, Error> {
+    const stats: CharacterStats = {
+        level: 1,
+        experience: 0,
+        class: CharacterClass.Barbarian,
+        abilities: {
+            strength: 10,
+            dexterity: 10,
+            constitution: 10,
+            intelligence: 10,
+            wisdom: 10,
+            charisma: 10,
+        }
+    };
+
+    const character = new Character(stats)
+
+    validateCharacter(character)
+
+    return ok(character)
+}
+
+export function validateCharacter(character: Character): Result<Character, Error> {
+    const level = character.level
+    if (level < 1) {
+        return err(new Error(''))
+    }
+
+    const experience = character.experience
+    if (experience < 0) {
+        return err(new Error(''))
+    }
+
+    if (experience > 355000) {
+        return err(new Error(''))
+    }
+
+    const expected_level = computeLevelFromExperience(experience)
+    if (expected_level !== level) {
+        return err(new Error(''))
+    }
+
+    let name: keyof Abilities
+    for (name in character.abilities) {
+        const ability_stat = character.abilities[name]
+        const modifier = computeModifierFromAbilityStat(ability_stat)
+        if (ability_stat < 0 || ability_stat > 20) {
+            return err(new Error(''))
+        }
+
+        if (modifier < -4 || modifier > 5) {
+            return err(new Error(''))
+        }
+    }
+
+    return ok(character)
+}
+
+export function computeModifierFromAbilityStat(ability_stat: number) {
+    return Math.floor((ability_stat - 10) / 2)
+}
+
+export function computeLevelFromExperience(experience: number) {
+    switch (true) {
+        case experience < 300:
+            return 1;
+        case experience < 900:
+            return 2;
+        case experience < 2700:
+            return 3;
+        case experience < 6500:
+            return 4;
+        case experience < 14000:
+            return 5;
+        case experience < 23000:
+            return 6;
+        case experience < 34000:
+            return 7;
+        case experience < 48000:
+            return 8;
+        case experience < 64000:
+            return 9;
+        case experience < 85000:
+            return 10;
+        case experience < 100000:
+            return 11;
+        case experience < 120000:
+            return 12;
+        case experience < 140000:
+            return 13;
+        case experience < 165000:
+            return 14;
+        case experience < 195000:
+            return 15;
+        case experience < 225000:
+            return 16;
+        case experience < 265000:
+            return 17;
+        case experience < 305000:
+            return 18;
+        case experience < 355000:
+            return 19;
+        default:
+            return 20;
+    }
+}
+
 export enum CharacterClass {
     Barbarian = "barbarian",
     Druid = "druid",
@@ -21,7 +167,7 @@ export const enum Ability {
     Charisma,
 }
 
-export const enum StrengthSkill {
+export enum StrengthSkill {
     Athletism = 0,
 }
 

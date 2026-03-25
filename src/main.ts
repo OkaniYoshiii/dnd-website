@@ -1,24 +1,21 @@
 // import { err } from "neverthrow";
-import { experience_element_id, tryGetInputById } from "./dom";
+import { Result } from "neverthrow";
+import { experience_element_id, level_element_id, tryGetElementById, tryGetInputById } from "./dom";
+import { onExperienceUpdate } from "./renderer";
 
-(function (): void {
-    const result = tryGetInputById(experience_element_id);
+function main() {
+    const result = Result.combine([
+        tryGetInputById(experience_element_id),
+        tryGetElementById(level_element_id)
+    ]);
+
     if (result.isErr()) {
-        return console.log(result.error);
+        return console.error(result.error)
     }
 
-    result.value.addEventListener("change", updateExperience);
-})();
+    const [experience_input, level_element] = result.value
 
-function updateExperience() {
-    // const result = getExperienceInput().andThen((input) => {
-    //     const experience = parseInt(input.value);
-    //     if (isNaN(experience)) {
-    //         return err(new Error("Experience is NaN"));
-    //     }
-    //     return setExperience(experience);
-    // });
-    // if (result.isErr()) {
-    //     return handleError(result.error);
-    // }
+    experience_input.addEventListener("change", (ev) => onExperienceUpdate(ev, level_element))
 }
+
+main()
